@@ -32,11 +32,13 @@ namespace android {
 
 sp<IServiceManager> defaultServiceManager()
 {
-    if (gDefaultServiceManager != NULL) return gDefaultServiceManager;
+    if (gDefaultServiceManager != NULL) return gDefaultServiceManager; // 单例模式，有就不再创建
     
     {
         AutoMutex _l(gDefaultServiceManagerLock);
         while (gDefaultServiceManager == NULL) {
+            // 开始创建，先看参数ProcessState::self() 2.getContextObject 3.interface_cast
+            // ProcessState.cpp
             gDefaultServiceManager = interface_cast<IServiceManager>(
                 ProcessState::self()->getContextObject(NULL));
             if (gDefaultServiceManager == NULL)

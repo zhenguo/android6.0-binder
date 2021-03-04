@@ -84,7 +84,7 @@ void ProcessState::setContextObject(const sp<IBinder>& object)
 
 sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& /*caller*/)
 {
-    return getStrongProxyForHandle(0);
+    return getStrongProxyForHandle(0); // 获取0号binder?
 }
 
 void ProcessState::setContextObject(const sp<IBinder>& object, const String16& name)
@@ -165,6 +165,7 @@ bool ProcessState::becomeContextManager(context_check_func checkFunc, void* user
 
 ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
 {
+    // SM的情况handle=0
     const size_t N=mHandleToObject.size();
     if (N <= (size_t)handle) {
         handle_entry e;

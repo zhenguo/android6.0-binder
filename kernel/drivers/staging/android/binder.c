@@ -2006,6 +2006,7 @@ static void binder_transaction(struct binder_proc *proc,
 
 	trace_binder_transaction(reply, t, target_node);
 
+	// 给物理内存扩容
 	t->buffer = binder_alloc_buf(target_proc, tr->data_size,
 		tr->offsets_size, extra_buffers_size,
 		!reply && (t->flags & TF_ONE_WAY));
@@ -2025,6 +2026,7 @@ static void binder_transaction(struct binder_proc *proc,
 				      ALIGN(tr->data_size, sizeof(void *)));
 	offp = off_start;
 
+	// 拷贝实际数据
 	if (copy_from_user(t->buffer->data, (const void __user *)(uintptr_t)
 			   tr->data.ptr.buffer, tr->data_size)) {
 		binder_user_error("%d:%d got transaction with invalid data ptr\n",
@@ -2203,7 +2205,7 @@ static void binder_transaction(struct binder_proc *proc,
 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
 	list_add_tail(&tcomplete->entry, &thread->todo);
 	if (target_wait)
-		wake_up_interruptible(target_wait);
+		wake_up_interruptible(target_wait); // 唤醒SM（或者其它的binder服务端）
 	return;
 
 err_translate_failed:
@@ -4210,6 +4212,7 @@ static int __init init_binder_device(const char *name)
 	return ret;
 }
 
+// binder驱动初始化函数
 static int __init binder_init(void)
 {
 	int ret;
@@ -4217,7 +4220,7 @@ static int __init binder_init(void)
 	struct binder_device *device;
 	struct hlist_node *tmp;
 
-	binder_deferred_workqueue = create_singlethread_workqueue("binder");
+	binder_deferred_workqueue = create_singlethread_workqueue("binder"); // 单线程工作队列,结尾会销毁
 	if (!binder_deferred_workqueue)
 		return -ENOMEM;
 
@@ -4263,7 +4266,7 @@ static int __init binder_init(void)
 		ret = -ENOMEM;
 		goto err_alloc_device_names_failed;
 	}
-	strcpy(device_names, binder_devices_param);
+	strcpy(device_names, binder_devices_param); // binder_devices_param拷贝到device_names内核空间
 
 	while ((device_name = strsep(&device_names, ","))) {
 		ret = init_binder_device(device_name);
@@ -4287,7 +4290,7 @@ err_alloc_device_names_failed:
 	return ret;
 }
 
-device_initcall(binder_init);
+device_initcall(binder_init); // binder驱动初始化，调用函数binder_init
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"

@@ -79,6 +79,27 @@ protected:
     I##INTERFACE();                                                     \
     virtual ~I##INTERFACE();                                            \
 
+/**
+const android::String16 IServiceManager::descriptor("android.os.IServiceManager")
+const android::String16& IServiceManager::getInterfaceDescriptor() const
+{
+    return IServiceManager::descriptor;
+}
+android::sp<IServiceManager> IServiceManager::asInterface(const android::
+sp<android::IBinder>& obj)
+{
+    android::sp<IServiceManager> intr;
+    if (obj != NULL) {
+        intr = static_cast<IServiceManager *>(obj->queryLocalInterface(IServiceManager::
+        descriptor).get());
+        if (intr == NULL) {
+            intr = new BpServiceManager(obj);
+        }
+    }
+
+    return intr;
+}
+*/
 
 #define IMPLEMENT_META_INTERFACE(INTERFACE, NAME)                       \
     const android::String16 I##INTERFACE::descriptor(NAME);             \
